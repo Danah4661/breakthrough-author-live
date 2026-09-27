@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout — Breakthrough Author Live</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .checkout-wrap{ max-width:480px; margin:0 auto; padding:var(--space-6) var(--space-3); }
+  .checkout-card{
+    background:var(--color-card); border:1px solid var(--color-border);
+    border-radius:var(--radius-lg); padding:var(--space-4); box-shadow:var(--shadow-md);
+  }
+  .line{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--color-border); }
+  .line.total{ font-weight:700; font-size:1.1rem; border-bottom:none; }
+  .field{ margin:var(--space-3) 0; }
+  .field label{ display:block; font-weight:600; margin-bottom:6px; font-size:.9rem; }
+  .field input{
+    width:100%; padding:14px; border:1px solid var(--color-border); border-radius:var(--radius-sm);
+    font-family:var(--font-sans); font-size:1rem; min-height:48px;
+  }
+  .field input:focus-visible{ outline:2px solid var(--color-accent); outline-offset:1px; }
+  .coupon-row{ display:flex; gap:8px; }
+  .coupon-row input{ flex:1; }
+  .btn-secondary{
+    padding:0 18px; border-radius:var(--radius-sm); border:1px solid var(--color-primary);
+    background:#fff; font-weight:700; cursor:pointer; min-height:48px;
+  }
+  .msg{ font-size:.85rem; margin-top:6px; }
+  .msg.ok{ color:var(--color-success); }
+  .msg.err{ color:var(--color-danger); }
+  .strike{ text-decoration:line-through; color:var(--color-muted); }
+</style>
+</head>
+<body>
+<header class="hero" style="padding:var(--space-4) 0;">
+  <div class="container center">
+    <h1 style="font-size:1.6rem;">Enroll in Breakthrough Author Live</h1>
+  </div>
+</header>
+
+<div class="checkout-wrap">
+  <div class="checkout-card">
+    <div class="line"><span>Breakthrough Author Live</span><span id="priceBase">$950.00</span></div>
+    <div class="line" id="discountLine" style="display:none;"><span>Coupon discount</span><span id="discountAmt">-$903.00</span></div>
+    <div class="line total"><span>Total due today</span><span id="priceTotal">$950.00</span></div>
+
+    <div class="field">
+      <label for="coupon">Coupon code</label>
+      <div class="coupon-row">
+        <input type="text" id="coupon" placeholder="Enter code" autocomplete="off">
+        <button type="button" class="btn-secondary" id="applyCoupon">Apply</button>
+      </div>
+      <p class="msg" id="couponMsg"></p>
+    </div>
+
+    <form id="checkoutForm">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+      </div>
+      <p style="font-size:.8rem;color:var(--color-muted);">This is a demo checkout — no real payment is processed and no card details are collected here.</p>
+      <button type="submit" class="btn-buy" style="width:100%;max-width:none;">Complete Enrollment</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  var FULL_PRICE = 950;
+  var SALE_PRICE = 47;
+  var COUPON_CODE = 'SAVE47'; // marketing coupon code — not a secret
+
+  var applyBtn = document.getElementById('applyCoupon');
+  var couponInput = document.getElementById('coupon');
+  var couponMsg = document.getElementById('couponMsg');
+  var discountLine = document.getElementById('discountLine');
+  var discountAmt = document.getElementById('discountAmt');
+  var priceTotal = document.getElementById('priceTotal');
+
+  applyBtn.addEventListener('click', function () {
+    var code = couponInput.value.trim().toUpperCase();
+    if (code === COUPON_CODE) {
+      discountLine.style.display = 'flex';
+      discountAmt.textContent = '-$' + (FULL_PRICE - SALE_PRICE).toFixed(2);
+      priceTotal.textContent = '$' + SALE_PRICE.toFixed(2);
+      couponMsg.textContent = 'Coupon applied — you saved $' + (FULL_PRICE - SALE_PRICE) + '!';
+      couponMsg.className = 'msg ok';
+    } else {
+      discountLine.style.display = 'none';
+      priceTotal.textContent = '$' + FULL_PRICE.toFixed(2);
+      couponMsg.textContent = 'That code is not valid.';
+      couponMsg.className = 'msg err';
+    }
+  });
+
+  // Auto-apply the coupon on load, matching the funnel promise (ad -> $47).
+  couponInput.value = COUPON_CODE;
+  applyBtn.click();
+
+  document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    try {
+      localStorage.setItem('bal_purchase', JSON.stringify({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        amount: priceTotal.textContent,
+        at: Date.now()
+      }));
+      var log = JSON.parse(localStorage.getItem('bal_events') || '[]');
+      log.push({ event: 'Purchase', amount: priceTotal.textContent, at: Date.now() });
+      localStorage.setItem('bal_events', JSON.stringify(log));
+    } catch (err) { /* localStorage unavailable — ignore */ }
+    window.location.href = 'thank-you.html';
+  });
+</script>
+</body>
+</html>

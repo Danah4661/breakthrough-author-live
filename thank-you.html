@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You're In! — Breakthrough Author Live</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero" style="min-height:100vh;display:flex;align-items:center;">
+  <div class="container center">
+    <span class="eyebrow">Welcome</span>
+    <h1>You're In! 🎉</h1>
+    <p class="sub" id="welcomeMsg">Check your email for next steps — your first live session details are on the way.</p>
+    <div class="buy-block">
+      <a class="btn-buy" href="index.html">Back to the page</a>
+    </div>
+  </div>
+</header>
+<script>
+  try {
+    var data = JSON.parse(localStorage.getItem('bal_purchase') || 'null');
+    if (data && data.name) {
+      document.getElementById('welcomeMsg').textContent =
+        'Thanks, ' + data.name + '! Check your email for next steps — your first live session details are on the way.';
+    }
+  } catch (e) { /* ignore */ }
+</script>
+</body>
+</html>
